@@ -3,12 +3,28 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Get;
 use App\Repository\DragonTreasureRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Carbon\Carbon;
 
 #[ORM\Entity(repositoryClass: DragonTreasureRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    shortName: 'Treasure',
+    description: 'A rare and valuable treasure',
+    operations: [
+        new Get(uriTemplate: '/dragon-plunder/{id}'),
+        new GetCollection(),
+        new Post(),
+        new Put(),
+        new Patch(),
+    ]
+)]
 class DragonTreasure
 {
     #[ORM\Id]
@@ -29,11 +45,15 @@ class DragonTreasure
     private ?int $coolFactor = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    private ?\DateTimeImmutable $plunderedAt;
 
     #[ORM\Column]
     private ?bool $isPublished = null;
 
+    public function __construct()
+    {
+        $this->plunderedAt = new \DateTimeImmutable();
+    }
     public function getId(): ?int
     {
         return $this->id;
@@ -87,18 +107,14 @@ class DragonTreasure
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getPlunderedAt(): ?\DateTimeImmutable
     {
-        return $this->createdAt;
+        return $this->plunderedAt;
     }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    public function getPlunderedAtAgo(): string
     {
-        $this->createdAt = $createdAt;
-
-        return $this;
+        return Carbon::instance($this->plunderedAt)->diffForHumans();
     }
-
     public function getIsPublished(): ?bool
     {
         return $this->isPublished;
