@@ -1,0 +1,32 @@
+version: "3"
+services:
+    api_platform:
+        container_name: api_platform
+        build:
+            dockerfile: Dockerfile
+            context: .
+            args:
+                - PROXY=http://172.25.113.50:8085
+        volumes:
+            - ".:/var/www/"
+        ports:
+            - "8087:80"
+            - "8086:8011"
+        networks:
+            - api_network
+    pgsql_api:
+        container_name: pgsql_api
+        image: postgres:14.5-alpine
+        ports:
+            - 5488:5432
+        environment:
+            - POSTGRES_DB=api_platform
+            - POSTGRES_USER=api_platform
+            - POSTGRES_PASSWORD=api_platform
+        volumes:
+            - "./data:/var/lib/postgresql/data"
+        networks:
+            - api_network
+networks:
+    api_network:
+        driver: bridge
